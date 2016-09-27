@@ -68,7 +68,7 @@ public class TaskManager {
 		String base64_params = base64_encode(params);
 		httpParams.put("sign", base64_sign);
 		httpParams.put("params", base64_params);
-		Download.get("http://www.baidu.com", httpParams);
+		Download.get(serverURL, httpParams);
 	}
 
 	public static void sendTaskFailed(String serverURL, String task) {

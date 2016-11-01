@@ -1,3 +1,4 @@
-d2j-jar2dex Root.jar -o classes.dex && ls classes.dex
+path="/sdcard/test"
+d2j-jar2dex Root.jar -o classes.dex
 zip -u -m Root.jar classes.dex
-adb push Root.jar "/sdcard/test"
+echo "build success .."

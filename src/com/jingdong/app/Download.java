@@ -82,6 +82,7 @@ public class Download {
 			// e.printStackTrace();
 			Logger.getLogger(Configure.loggerName).severe(Configure.logTag
 					+ String.format("Download failed, url: %s, uri:%s error: %s", URL, URI, e.getMessage()));
+			System.out.println(String.format("Download failed, url: %s, uri:%s error: %s", URL, URI, e.getMessage()));
 		}
 
 		try {
@@ -95,6 +96,8 @@ public class Download {
 			ArrayList arrayList = new ArrayList(4);
 			// System.out.println(result);
 			// result = "358239051596619-020000000000,2782638,1,10"
+			inputStream.close();
+			reader.close();
 		} catch (Exception e) {
 			// e.printStackTrace();
 			Logger.getLogger(Configure.loggerName).severe(Configure.logTag

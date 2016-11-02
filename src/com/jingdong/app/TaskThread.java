@@ -35,6 +35,12 @@ public class TaskThread implements Runnable, Serializable {
 			if (resultMap.get("result") == "finish") {
 				break;
 			}
+			try {
+				Thread.sleep(Configure.nextGetTaskSleepTime);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+			}
+
 		}
 		if (resultMap.get("result") == "finish")
 			Logger.getLogger(Configure.loggerName).info(Configure.logTag + "Finish all. get finish from server.");
@@ -74,8 +80,8 @@ public class TaskThread implements Runnable, Serializable {
 		paramsString = buildBody(sku, page, size);
 		String signString = sign("getMobileCommentList", paramsString, uuid);
 		// Log.d("sign" , taskString + ":" + signString);
-		System.out.println(taskString + " params:" + paramsString);
-		System.out.println(taskString + " sign:" + signString);
+		System.out.println(taskString + " result params:" + paramsString);
+		System.out.println(taskString + " result sign:" + signString);
 
 		TaskManager.sendTaskSign(Configure.serverDoneTask, taskString, signString, paramsString);
 		// TODO: 上传错误

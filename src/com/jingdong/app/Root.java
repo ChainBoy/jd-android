@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 public class Root {
 	private static int DEBUG = 0;
 	private static int ALLTYPE = 0;
+	private static int SETALL = 0;
 	private static ThreadPoolExecutor threadPool = new ThreadPoolExecutor(Configure.poolMinSize, Configure.poolMaxSize,
 			3, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(3), new ThreadPoolExecutor.DiscardOldestPolicy());
 
@@ -21,10 +22,17 @@ public class Root {
 				ALLTYPE = 1;
 				continue;
 			}
+			if (s.equalsIgnoreCase("--setall")) {
+				SETALL = 1;
+				continue;
+			}
 		}
 		Configure.set_debug(DEBUG);
 		Configure.set_alltype(ALLTYPE);
+		Configure.set_putall(SETALL);
 		System.out.println("set debug: " + DEBUG);
+		System.out.println("set alltype: " + ALLTYPE);
+		System.out.println("set setall: " + SETALL);
 		System.out.println("server url: " + Configure.serverGetTask);
 
 		try {
@@ -54,7 +62,7 @@ public class Root {
 				System.out.println("test finish ..");
 			}
 			System.out.println("wait, will start ...");
-			Thread.sleep(1000);
+			Thread.sleep(2000);
 		} catch (Exception e) {
 			System.out.println("test failed");
 			e.printStackTrace();

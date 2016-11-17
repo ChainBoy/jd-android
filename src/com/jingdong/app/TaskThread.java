@@ -3,6 +3,7 @@ package com.jingdong.app;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -53,6 +54,7 @@ public class TaskThread implements Runnable, Serializable {
 	}
 
 	private static void run_task(Map resultMap) {
+		ArrayList<HashMap<String, String>> resultSignList= new ArrayList();
 		resultMap.put("result", "");
 		String taskString = "";
 		ArrayList<Map> taskMapList = TaskManager.getTaskMapList(Configure.serverGetTask);
@@ -61,13 +63,16 @@ public class TaskThread implements Runnable, Serializable {
 			taskString = (String) taskMap.get("task");
 			if (taskString == "finish")
 				continue;
-			signTask(taskString);
+			resultSignList.add(signTask(taskString));
 		}
 		if (taskString == "finish")
 			resultMap.put("result", "finish");
+		if (Configure.SETALL==1){
+			TaskManager.sendTaskSignList(Configure.serverDoneFullTask, resultSignList);
+		}
 	}
 
-	private static void signTask(String taskString) {
+	private static HashMap<String, String> signTask(String taskString) {
 		String taskArgs[] = taskString.split(",");
 		String uuid = taskArgs[0];
 		String sku = taskArgs[1];
@@ -76,13 +81,13 @@ public class TaskThread implements Runnable, Serializable {
 		String size = taskArgs[4];
 		String signString = "";
 		String paramsString = "";
-
+		HashMap<String, String> resultMap = new HashMap<String, String>();
 		String paramsString_0 = buildBody(sku, page, size, "0");
 		String signString_0 = sign("getMobileCommentList", paramsString_0, uuid);
 		paramsString += "0: " + paramsString_0;
 		signString += "0: " + signString_0;
 		System.out.println(taskString + "  params: " + paramsString_0 + " type:0 result sign: " + signString_0);
-		
+
 		if (Configure.ALLTYPE == 1) {
 			String paramsString_1 = buildBody(sku, page, size, "1");
 			String signString_1 = sign("getMobileCommentList", paramsString_1, uuid);
@@ -93,7 +98,7 @@ public class TaskThread implements Runnable, Serializable {
 			String signString_2 = sign("getMobileCommentList", paramsString_2, uuid);
 			signString += "2: " + signString_2 + Configure.splitChar;
 			paramsString += "2: " + paramsString_2 + Configure.splitChar;
-			
+
 			String paramsString_3 = buildBody(sku, page, size, "3");
 			String signString_3 = sign("getMobileCommentList", paramsString_3, uuid);
 			signString += "3: " + signString_3 + Configure.splitChar;
@@ -103,7 +108,13 @@ public class TaskThread implements Runnable, Serializable {
 			System.out.println(taskString + "  params: " + paramsString_2 + " type:2 result sign: " + signString_2);
 			System.out.println(taskString + "  params: " + paramsString_3 + " type:3 result sign: " + signString_3);
 		}
-		TaskManager.sendTaskSign(Configure.serverDoneTask, taskString, signString, paramsString);
+		if (Configure.SETALL == 0) {
+			TaskManager.sendTaskSign(Configure.serverDoneTask, taskString, signString, paramsString);
+		}
+		resultMap.put("sign_key", taskString);
+		resultMap.put("sign_value", signString);
+		resultMap.put("params_value", paramsString);
+		return resultMap;
 		// TODO: 上传错误
 		// TaskManager.sendTaskFailed(serverFailedTask, taskString);
 	}

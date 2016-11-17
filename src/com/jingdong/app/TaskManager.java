@@ -3,6 +3,7 @@ package com.jingdong.app;
 import java.util.ArrayList;
 //import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -45,8 +46,8 @@ public class TaskManager {
 		String[] taskStringList = content.split("\n");
 
 		for (String line : taskStringList) {
-//			358239051596619-020000000000,2782638,2782638,1,10
-//			phone_id,child_id,product_id,page_index,page_size
+			// 358239051596619-020000000000,2782638,2782638,1,10
+			// phone_id,child_id,product_id,page_index,page_size
 			Map taskMap = new HashMap();
 			ArrayList arrayList = new ArrayList(4);
 			taskMap.put("task", line);
@@ -54,7 +55,7 @@ public class TaskManager {
 				String[] resultList = line.split(",");
 				taskMap.put("uuid", resultList[0]);
 				taskMap.put("sku", resultList[1]);
-//				taskMap.put("sku", resultList[2]);
+				// taskMap.put("sku", resultList[2]);
 				taskMap.put("page", resultList[3]);
 				taskMap.put("size", resultList[4]);
 			} catch (Exception e) {
@@ -74,6 +75,21 @@ public class TaskManager {
 		httpParams.put("sign_key", task);
 		httpParams.put("sign_value", base64_sign);
 		httpParams.put("params_value", base64_params);
+		Download.get(serverURL, httpParams);
+	}
+
+	public static void sendTaskSignList(String serverURL, List<HashMap<String, String>> SignList) {
+		String content = "";
+		for (HashMap signMap : SignList) {
+			String signKey = (String) signMap.get("sign_key");
+			String signValue = (String) signMap.get("sign_value");
+			String paramsValue = (String) signMap.get("params_value");
+			content += signKey + "://:" + signValue + "://:" + paramsValue + ":||:";
+		}
+		Map httpParams = new HashMap();
+		String base64_data = base64_encode(content);
+
+		httpParams.put("data", base64_data);
 		Download.get(serverURL, httpParams);
 	}
 

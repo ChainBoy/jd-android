@@ -16,18 +16,20 @@ public class Configure {
 	public static final String splitChar = "\t";
 
 	public static final int threadStartSleepTime = 2;
-	
+
 	public static final int startThreadWaitTime = 2000;
 
 	public static String serverGetTask = "http://192.168.3.4:8008/get";
 	public static String serverDoneTask = "http://192.168.3.4:8008/set";
+	public static String serverDoneFullTask = "http://192.168.3.4:8008/set_all";
 	public static String serverFailedTask = "http://192.168.3.4:8008/reset";
-	
+
 	public static int ALLTYPE = 0;
+	public static int SETALL = 0;
 
 	// get next task wait time
 	public static final int nextGetTaskSleepTime = 2000;
-	
+
 	// request timeout setting
 	public static final int CONNECTION_TIMEOUT = 300 * 1000; /* 5 seconds */
 	public static final int SOCKET_TIMEOUT = 300 * 1000; /* 5 seconds */
@@ -42,10 +44,15 @@ public class Configure {
 			serverHost = serverHostRELEASE;
 		serverGetTask = "http://" + serverHost + "/get";
 		serverDoneTask = "http://" + serverHost + "/set";
+		serverDoneFullTask = "http://" + serverHost + "/set_all";
 		serverFailedTask = "http://" + serverHost + "/reset";
 	}
-	
-	public static void set_alltype(int alltype){
+
+	public static void set_alltype(int alltype) {
 		ALLTYPE = alltype;
+	}
+
+	public static void set_putall(int setall) {
+		SETALL = setall;
 	}
 }

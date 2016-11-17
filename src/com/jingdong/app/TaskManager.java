@@ -45,6 +45,8 @@ public class TaskManager {
 		String[] taskStringList = content.split("\n");
 
 		for (String line : taskStringList) {
+//			358239051596619-020000000000,2782638,2782638,1,10
+//			phone_id,child_id,product_id,page_index,page_size
 			Map taskMap = new HashMap();
 			ArrayList arrayList = new ArrayList(4);
 			taskMap.put("task", line);
@@ -52,8 +54,9 @@ public class TaskManager {
 				String[] resultList = line.split(",");
 				taskMap.put("uuid", resultList[0]);
 				taskMap.put("sku", resultList[1]);
-				taskMap.put("page", resultList[2]);
-				taskMap.put("size", resultList[3]);
+//				taskMap.put("sku", resultList[2]);
+				taskMap.put("page", resultList[3]);
+				taskMap.put("size", resultList[4]);
 			} catch (Exception e) {
 				Logger.getLogger(Configure.loggerName).info(Configure.logTag + "get error task: " + line);
 				System.out.println("get error task: " + line);

@@ -33,6 +33,9 @@ public class Download {
 	private static final int CONNECTION_TIMEOUT = 5000; /* 5 seconds */
 	private static final int SOCKET_TIMEOUT = 5000; /* 5 seconds */
 	private static final long MCC_TIMEOUT = 5000; /* 5 seconds */
+	private static HttpGet httpGet = null;
+	private static HttpClient httpClient = null;
+	private static int Count = 0;
 
 	public static void main(String args[]) {
 		try {
@@ -56,15 +59,12 @@ public class Download {
 	}
 
 	public static String get(String URL) {
+		Count += 1;
 		return get(URL, new HashMap());
 	}
 
 	public static String get(String URL, Map params) {
 		String result = "";
-		HttpGet httpGet = null;
-
-		// URIBuilder builder = null;
-
 		String URI = setParams(params);
 		// System.out.println(URL + "?" + URI);
 		httpGet = new HttpGet(URL + "?" + URI);
@@ -73,16 +73,22 @@ public class Download {
 		httpClient.getParams().setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, CONNECTION_TIMEOUT);
 		httpClient.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT, SOCKET_TIMEOUT);
 		httpClient.getParams().setLongParameter(ConnManagerPNames.TIMEOUT, MCC_TIMEOUT);
+		httpClient.getParams().setLongParameter(ConnManagerPNames.MAX_TOTAL_CONNECTIONS, 256);
 
 		HttpResponse response = null;
 		try {
-
 			response = httpClient.execute(httpGet);
 		} catch (Exception e) {
-			// e.printStackTrace();
 			Logger.getLogger(Configure.loggerName).severe(Configure.logTag
 					+ String.format("Download failed, url: %s, uri:%s error: %s", URL, URI, e.getMessage()));
-			System.out.println(String.format("Download failed, url: %s, uri:%s error: %s", URL, URI, e.getMessage()));
+			System.out.println(
+					String.format("[%s] Download failed, url: %s, uri:%s error: %s", Count, URL, URI, e.getMessage()));
+			httpClient.getConnectionManager().closeExpiredConnections();
+			httpClient.getConnectionManager().shutdown();
+			// httpGet.close();
+			// httpGet.releaseConnection();
+//			 e.printStackTrace();
+			return result;
 		}
 
 		try {
@@ -98,10 +104,15 @@ public class Download {
 			// result = "358239051596619-020000000000,2782638,1,10"
 			inputStream.close();
 			reader.close();
+			httpClient.getConnectionManager().closeExpiredConnections();
+			httpClient.getConnectionManager().shutdown();
+			// httpGet.close();
+			// httpGet.releaseConnection();
 		} catch (Exception e) {
-			// e.printStackTrace();
 			Logger.getLogger(Configure.loggerName).severe(Configure.logTag
 					+ String.format("Download read response failed, url: %s error: %s", URL, e.getMessage()));
+			System.out.println(String.format("Download read response failed, url: %s error: %s", URL, e.getMessage()));
+			// e.printStackTrace();
 		}
 
 		return result;

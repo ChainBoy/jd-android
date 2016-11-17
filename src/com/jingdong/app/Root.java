@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 public class Root {
 	private static int DEBUG = 0;
+	private static int ALLTYPE = 0;
 	private static ThreadPoolExecutor threadPool = new ThreadPoolExecutor(Configure.poolMinSize, Configure.poolMaxSize,
 			3, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(3), new ThreadPoolExecutor.DiscardOldestPolicy());
 
@@ -14,10 +15,15 @@ public class Root {
 		for (String s : args) {
 			if (s.equalsIgnoreCase("--debug")) {
 				DEBUG = 1;
-				break;
+				continue;
+			}
+			if (s.equalsIgnoreCase("--alltype")) {
+				ALLTYPE = 1;
+				continue;
 			}
 		}
 		Configure.set_debug(DEBUG);
+		Configure.set_alltype(ALLTYPE);
 		System.out.println("set debug: " + DEBUG);
 		System.out.println("server url: " + Configure.serverGetTask);
 
@@ -63,7 +69,7 @@ public class Root {
 			} catch (Exception e) {
 				Logger.getLogger(Configure.loggerName)
 						.info(Configure.logTag + "start thread failed: " + e.getMessage());
-				e.printStackTrace();
+//				e.printStackTrace();
 			}
 		}
 	}

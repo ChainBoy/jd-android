@@ -13,7 +13,7 @@ public class TaskThread implements Runnable, Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public static void test() {
-		signTask("358239051596619-020000000000,2782638,1,10");
+		signTask("358239051596619-020000000000,2782638,2782638,1,10");
 	}
 
 	public void run() {
@@ -32,15 +32,14 @@ public class TaskThread implements Runnable, Serializable {
 		Map<String, String> resultMap = new HashMap<String, String>();
 		while (true) {
 			run_task(resultMap);
+			System.out.println("==================== sign end, wait next ... ===============");
 			if (resultMap.get("result") == "finish") {
 				break;
 			}
 			try {
 				Thread.sleep(Configure.nextGetTaskSleepTime);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 			}
-
 		}
 		if (resultMap.get("result") == "finish")
 			Logger.getLogger(Configure.loggerName).info(Configure.logTag + "Finish all. get finish from server.");
@@ -57,7 +56,7 @@ public class TaskThread implements Runnable, Serializable {
 		resultMap.put("result", "");
 		String taskString = "";
 		ArrayList<Map> taskMapList = TaskManager.getTaskMapList(Configure.serverGetTask);
-		System.out.println("get task size: " + taskMapList.size());
+		// System.out.println("get task size: " + taskMapList.size());
 		for (Map taskMap : taskMapList) {
 			taskString = (String) taskMap.get("task");
 			if (taskString == "finish")
@@ -66,23 +65,44 @@ public class TaskThread implements Runnable, Serializable {
 		}
 		if (taskString == "finish")
 			resultMap.put("result", "finish");
-		System.out.println("==================== sign end, wait next ... ===============");
 	}
 
 	private static void signTask(String taskString) {
 		String taskArgs[] = taskString.split(",");
-		String paramsString = "";
 		String uuid = taskArgs[0];
 		String sku = taskArgs[1];
-		String page = taskArgs[2];
-		String size = taskArgs[3];
+		String base_sku = taskArgs[2];
+		String page = taskArgs[3];
+		String size = taskArgs[4];
+		String signString = "";
+		String paramsString = "";
 
-		paramsString = buildBody(sku, page, size);
-		String signString = sign("getMobileCommentList", paramsString, uuid);
-		// Log.d("sign" , taskString + ":" + signString);
-		System.out.println(taskString + " result params:" + paramsString);
-		System.out.println(taskString + " result sign:" + signString);
+		String paramsString_0 = buildBody(sku, page, size, "0");
+		String signString_0 = sign("getMobileCommentList", paramsString_0, uuid);
+		paramsString += "0: " + paramsString_0;
+		signString += "0: " + signString_0;
+		System.out.println(taskString + "  params: " + paramsString_0 + " type:0 result sign: " + signString_0);
+		
+		if (Configure.ALLTYPE == 1) {
+			String paramsString_1 = buildBody(sku, page, size, "1");
+			String signString_1 = sign("getMobileCommentList", paramsString_1, uuid);
+			signString += Configure.splitChar + "1: " + signString_1 + Configure.splitChar;
+			paramsString += Configure.splitChar + "1: " + paramsString_1 + Configure.splitChar;
 
+			String paramsString_2 = buildBody(sku, page, size, "2");
+			String signString_2 = sign("getMobileCommentList", paramsString_2, uuid);
+			signString += "2: " + signString_2 + Configure.splitChar;
+			paramsString += "2: " + paramsString_2 + Configure.splitChar;
+			
+			String paramsString_3 = buildBody(sku, page, size, "3");
+			String signString_3 = sign("getMobileCommentList", paramsString_3, uuid);
+			signString += "3: " + signString_3 + Configure.splitChar;
+			paramsString += "3: " + paramsString_3 + Configure.splitChar;
+
+			System.out.println(taskString + "  params: " + paramsString_1 + " type:1 result sign: " + signString_1);
+			System.out.println(taskString + "  params: " + paramsString_2 + " type:2 result sign: " + signString_2);
+			System.out.println(taskString + "  params: " + paramsString_3 + " type:3 result sign: " + signString_3);
+		}
 		TaskManager.sendTaskSign(Configure.serverDoneTask, taskString, signString, paramsString);
 		// TODO: 上传错误
 		// TaskManager.sendTaskFailed(serverFailedTask, taskString);
@@ -114,14 +134,14 @@ public class TaskThread implements Runnable, Serializable {
 		return sign_key;
 	}
 
-	private static String buildBody(String sku, String offset, String num) {
+	private static String buildBody(String sku, String offset, String num, String type) {
 		try {
 			JSONObject jsonParams = new JSONObject();
 			jsonParams.put("offset", offset);
 			jsonParams.put("num", num);
 
 			jsonParams.put("sku", sku);
-			jsonParams.put("type", "0");
+			jsonParams.put("type", type);
 			String paramsString = "";
 
 			return jsonParams.toString();
